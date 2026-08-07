@@ -49,8 +49,7 @@ const app = express();
 // Allows frontend (React) to communicate with backend
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
+    origin: "*",
   })
 );
 
