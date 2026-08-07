@@ -167,10 +167,17 @@ export const login = async (req, res) => {
     // --------------------------------------------------
     // Compare Entered Password with Stored Hash
     // --------------------------------------------------
-    const passwordMatched = await bcrypt.compare(
-      password,
-      user.password
-    );
+    console.log("Entered Username:", username);
+console.log("Stored Username:", user.username);
+console.log("Stored Role:", user.role);
+console.log("Stored Hash:", user.password.substring(0, 20));
+
+const passwordMatched = await bcrypt.compare(
+  password,
+  user.password
+);
+
+console.log("Password Matched:", passwordMatched);
 
     // Password Incorrect
     if (!passwordMatched) {
