@@ -17,17 +17,15 @@ import MyLeaves from "./pages/MyLeaves";
 import Notifications from "./pages/Notifications";
 import EmployeeProfile from "./pages/EmployeeProfile";
 
-import ManageLeaves from "./pages/ManageLeaves";
+import ManagerDashboard from "./pages/ManagerDashboard";
 import Employees from "./pages/Employees";
 import Reports from "./pages/Reports";
-
-
-
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+
         {/* Authentication Routes */}
         <Route path="/" element={<LoginChoice />} />
         <Route path="/login/employee" element={<EmployeeLogin />} />
@@ -41,21 +39,17 @@ function App() {
         <Route path="/notifications" element={<Notifications />} />
 
         {/* Manager Routes */}
-       <Route path="/manager" element={<Navigate to="/manage-leaves" replace />} />
+        <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/manager/employees" element={<Employees />} />
+        <Route path="/manager/reports" element={<Reports />} />
+        <Route
+          path="/manager/employee/:id"
+          element={<EmployeeProfile />}
+        />
 
-<Route path="/manage-leaves" element={<ManageLeaves />} />
-
-<Route path="/manager/employees" element={<Employees />} />
-
-<Route path="/manager/reports" element={<Reports />} />
-
-<Route
-  path="/manager/employee/:id"
-  element={<EmployeeProfile />}
-/>
-
-        {/* Fallback Route */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </BrowserRouter>
   );
