@@ -133,17 +133,11 @@ Managers can view leave information and export reports in:
 - Supabase - Database and Storage
 
 
-------------------------------------------------------------------------------------------------
-
 ## Demo Credentials
 
 ### Manager Account
 
-**Username:** `manager@gcu.in`  
-**Password:** `Manager@123`  
-
-------------------------------------------------------------------------------------------------
-
+A predefined manager account is available for project evaluation. 
 
 ---
 
