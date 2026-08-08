@@ -40,7 +40,7 @@ export default function ManagerSidebar() {
 
 
         <Link
-          to="/manage-leaves"
+          to="/manager"
           className="flex items-center gap-3 px-6 py-4 hover:bg-slate-800"
         >
           <ClipboardList size={20}/>
