@@ -133,7 +133,6 @@ Managers can view leave information and export reports in:
 - Supabase - Database and Storage
 
 
-## Demo Credentials
 
 ### Manager Account
 
