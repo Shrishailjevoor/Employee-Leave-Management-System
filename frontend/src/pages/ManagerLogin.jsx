@@ -46,7 +46,7 @@ export default function ManagerLogin() {
 
       setUser(res.data.user);
 
-navigate("/manage-leaves");
+navigate("/manager");
     } catch (err) {
 
   toast.error(

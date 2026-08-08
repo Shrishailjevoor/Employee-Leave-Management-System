@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 // Pages
+import ManagerDashboard from "./pages/ManagerDashboard";
 import LoginChoice from "./pages/LoginChoice";
 import EmployeeLogin from "./pages/EmployeeLogin";
 import ManagerLogin from "./pages/ManagerLogin";
@@ -17,7 +18,6 @@ import MyLeaves from "./pages/MyLeaves";
 import Notifications from "./pages/Notifications";
 import EmployeeProfile from "./pages/EmployeeProfile";
 
-import ManagerDashboard from "./pages/ManagerDashboard";
 import Employees from "./pages/Employees";
 import Reports from "./pages/Reports";
 
@@ -39,13 +39,22 @@ function App() {
         <Route path="/notifications" element={<Notifications />} />
 
         {/* Manager Routes */}
-        <Route path="/manager" element={<ManagerDashboard />} />
-        <Route path="/manager/employees" element={<Employees />} />
-        <Route path="/manager/reports" element={<Reports />} />
-        <Route
-          path="/manager/employee/:id"
-          element={<EmployeeProfile />}
-        />
+       <Route path="/manager" element={<ManagerDashboard />} />
+
+<Route
+  path="/manager/employees"
+  element={<Employees />}
+/>
+
+<Route
+  path="/manager/reports"
+  element={<Reports />}
+/>
+
+<Route
+  path="/manager/employee/:id"
+  element={<EmployeeProfile />}
+/>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
