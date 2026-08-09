@@ -14,6 +14,10 @@ export default function EmployeeRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+
+  // ============================================================
+  // Handle Employee Registration
+  // ============================================================
   const handleRegister = async (e) => {
 
     e.preventDefault();
@@ -43,40 +47,44 @@ export default function EmployeeRegister() {
       setLoading(false);
 
     }
-
   };
 
+
   return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center px-4 sm:px-6 py-8">
 
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-100 flex justify-center items-center">
+      {/* ========================================================
+          Registration Card
+      ======================================================== */}
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-[430px] p-6 sm:p-8">
 
-      <div className="bg-white rounded-3xl shadow-2xl w-[430px] p-8">
-
+        {/* Back to Login */}
         <Link
           to="/login/employee"
-          className="flex items-center gap-2 text-blue-600 mb-5"
+          className="flex items-center gap-2 text-blue-600 text-base sm:text-lg mb-6"
         >
           <ArrowLeft size={20} />
           Back to Login
         </Link>
 
 
-        <h1 className="text-3xl font-bold text-center text-blue-700">
+        {/* Heading */}
+        <h1 className="text-3xl sm:text-4xl font-bold text-center text-blue-700 leading-tight">
           Employee Registration
         </h1>
 
 
+        {/* Registration Form */}
         <form
           onSubmit={handleRegister}
           className="space-y-5 mt-8"
         >
 
           {/* Username */}
-
           <input
             type="text"
             placeholder="Username"
-            className="w-full border rounded-xl p-3"
+            className="w-full border rounded-xl p-3 sm:p-4 text-base sm:text-lg outline-none focus:ring-2 focus:ring-blue-500"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -84,49 +92,45 @@ export default function EmployeeRegister() {
 
 
           {/* Password */}
-
           <div className="relative">
 
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="w-full border rounded-xl p-3 pr-12"
+              className="w-full border rounded-xl p-3 sm:p-4 pr-12 text-base sm:text-lg outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
 
+            {/* Password Visibility */}
             <button
               type="button"
-              onClick={() =>
-                setShowPassword(!showPassword)
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
+              aria-label={
+                showPassword
+                  ? "Hide password"
+                  : "Show password"
               }
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
             >
-
               {showPassword ? (
-                <EyeOff size={20} />
+                <EyeOff size={22} />
               ) : (
-                <Eye size={20} />
+                <Eye size={22} />
               )}
-
             </button>
 
           </div>
 
 
           {/* Register Button */}
-
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+            className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-70 text-white py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition"
           >
-
-            {loading
-              ? "Creating Account..."
-              : "Register"}
-
+            {loading ? "Creating Account..." : "Register"}
           </button>
 
         </form>
@@ -134,7 +138,5 @@ export default function EmployeeRegister() {
       </div>
 
     </div>
-
   );
-
 }

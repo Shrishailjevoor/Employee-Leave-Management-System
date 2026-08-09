@@ -14,26 +14,35 @@ import ManagerSidebar from "../components/manager/ManagerSidebar";
 
 import { FileText } from "lucide-react";
 
+
 export default function ManagerDashboard() {
 
+  // ============================================================
+  // Leave Requests
+  // ============================================================
   const [requests, setRequests] = useState([]);
 
-  const [search, setSearch] = useState("");
 
+  // ============================================================
+  // Search and Status Filter
+  // ============================================================
+  const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  // Modal
+
+  // ============================================================
+  // Approve / Reject Modal
+  // ============================================================
   const [modalOpen, setModalOpen] = useState(false);
-
   const [selectedLeave, setSelectedLeave] = useState(null);
-
   const [targetStatus, setTargetStatus] = useState("");
-
   const [remarks, setRemarks] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Toast
+
+  // ============================================================
+  // Toast State
+  // ============================================================
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -42,9 +51,8 @@ export default function ManagerDashboard() {
 
 
   // ============================================================
-  // Toast
+  // Show Toast
   // ============================================================
-
   const showToast = (message, type = "success") => {
 
     setToast({
@@ -52,6 +60,7 @@ export default function ManagerDashboard() {
       message,
       type,
     });
+
 
     setTimeout(() => {
 
@@ -62,13 +71,13 @@ export default function ManagerDashboard() {
       });
 
     }, 3500);
+
   };
 
 
   // ============================================================
   // Format Date
   // ============================================================
-
   const formatDate = (date) => {
 
     if (!date) return "-";
@@ -85,7 +94,6 @@ export default function ManagerDashboard() {
   // ============================================================
   // Statistics
   // ============================================================
-
   const total = requests.length;
 
   const pending = requests.filter(
@@ -104,7 +112,6 @@ export default function ManagerDashboard() {
   // ============================================================
   // Search + Filter
   // ============================================================
-
   const filteredRequests = requests.filter((leave) => {
 
     const matchesSearch = leave.users?.username
@@ -123,7 +130,6 @@ export default function ManagerDashboard() {
   // ============================================================
   // Load Leave Requests
   // ============================================================
-
   const loadRequests = async () => {
 
     try {
@@ -150,6 +156,9 @@ export default function ManagerDashboard() {
   };
 
 
+  // ============================================================
+  // Load Requests When Page Opens
+  // ============================================================
   useEffect(() => {
 
     loadRequests();
@@ -160,18 +169,14 @@ export default function ManagerDashboard() {
   // ============================================================
   // Open Approve / Reject Modal
   // ============================================================
-
   const openConfirmationModal = (
     leave,
     status
   ) => {
 
     setSelectedLeave(leave);
-
     setTargetStatus(status);
-
     setRemarks("");
-
     setModalOpen(true);
 
   };
@@ -180,7 +185,6 @@ export default function ManagerDashboard() {
   // ============================================================
   // Approve / Reject Leave
   // ============================================================
-
   const handleConfirmStatusUpdate = async (e) => {
 
     e.preventDefault();
@@ -199,15 +203,17 @@ export default function ManagerDashboard() {
         }
       );
 
+
       await loadRequests();
+
 
       showToast(
         `Leave ${targetStatus} Successfully`,
         "success"
       );
 
-      setModalOpen(false);
 
+      setModalOpen(false);
       setSelectedLeave(null);
 
     } catch (error) {
@@ -230,7 +236,6 @@ export default function ManagerDashboard() {
   // ============================================================
   // Export PDF
   // ============================================================
-
   const exportPDF = () => {
 
     const doc = new jsPDF();
@@ -242,6 +247,7 @@ export default function ManagerDashboard() {
       14,
       20
     );
+
 
     autoTable(doc, {
 
@@ -272,6 +278,7 @@ export default function ManagerDashboard() {
 
     });
 
+
     doc.save("Leave_Report.pdf");
 
   };
@@ -280,7 +287,6 @@ export default function ManagerDashboard() {
   // ============================================================
   // Export Excel
   // ============================================================
-
   const exportExcel = () => {
 
     const data = requests.map((leave) => ({
@@ -347,473 +353,725 @@ export default function ManagerDashboard() {
   };
 
 
-  // ============================================================
-  // UI
-  // ============================================================
-
   return (
 
-    <div className="flex">
+    <div className="flex min-h-screen bg-slate-100">
 
+      {/* ======================================================
+          Manager Sidebar
+      ====================================================== */}
       <ManagerSidebar />
 
 
-      <main className="flex-1 bg-slate-100 min-h-screen p-6 overflow-x-auto">
+      {/* ======================================================
+          Main Content
+      ====================================================== */}
+      <main className="flex-1 min-w-0 bg-slate-100 min-h-screen p-3 sm:p-5 md:p-8">
+
+        <div className="w-full max-w-7xl mx-auto">
 
 
-        {/* Toast */}
+          {/* ==================================================
+              Toast
+          ================================================== */}
+          {toast.show && (
 
-        {toast.show && (
-
-          <div
-            className={`fixed top-6 right-6 px-6 py-3 rounded-xl shadow-lg text-white font-medium z-50 ${
-              toast.type === "error"
-                ? "bg-red-600"
-                : "bg-green-600"
-            }`}
-          >
-
-            {toast.message}
-
-          </div>
-
-        )}
-
-
-        <ManagerNavbar />
-
-
-        {/* =====================================================
-            Statistics
-        ===================================================== */}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
-
-          <ManagerStatCard
-            title="Total Requests"
-            value={total}
-            color="blue"
-          />
-
-          <ManagerStatCard
-            title="Pending"
-            value={pending}
-            color="yellow"
-          />
-
-          <ManagerStatCard
-            title="Approved"
-            value={approved}
-            color="green"
-          />
-
-          <ManagerStatCard
-            title="Rejected"
-            value={rejected}
-            color="red"
-          />
-
-        </div>
-
-
-        {/* =====================================================
-            Header + Search + Filter + Export
-        ===================================================== */}
-
-        <div className="bg-white rounded-xl shadow-lg p-5 mt-8">
-
-          <div className="flex flex-col lg:flex-row justify-between gap-4">
-
-            <div>
-
-              <h2 className="text-2xl font-bold">
-                Employee Leave Requests
-              </h2>
-
-              <p className="text-gray-500 mt-1">
-                Review and manage employee leave applications.
-              </p>
-
+            <div
+              className={`
+                fixed
+                top-4
+                left-4
+                right-4
+                sm:left-auto
+                sm:right-6
+                sm:top-6
+                px-5
+                py-3
+                rounded-xl
+                shadow-lg
+                text-white
+                font-medium
+                z-50
+                text-center
+                sm:text-left
+                ${
+                  toast.type === "error"
+                    ? "bg-red-600"
+                    : "bg-green-600"
+                }
+              `}
+            >
+              {toast.message}
             </div>
 
-
-            <div className="flex flex-wrap gap-3">
-
-              <button
-                onClick={exportPDF}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl"
-              >
-                Export PDF
-              </button>
+          )}
 
 
-              <button
-                onClick={exportExcel}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl"
-              >
-                Export Excel
-              </button>
-
-            </div>
-
-          </div>
+          {/* Manager Navbar */}
+          <ManagerNavbar />
 
 
-          <div className="flex flex-col md:flex-row gap-4 mt-5">
+          {/* ==================================================
+              Statistics
+          ================================================== */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
 
-            <input
-              type="text"
-              placeholder="Search Employee..."
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              className="border rounded-xl px-4 py-2 w-full md:w-72 outline-none focus:ring-2 focus:ring-blue-500"
+            <ManagerStatCard
+              title="Total Requests"
+              value={total}
+              color="blue"
             />
 
+            <ManagerStatCard
+              title="Pending"
+              value={pending}
+              color="yellow"
+            />
 
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value)
-              }
-              className="border rounded-xl px-4 py-2 bg-white outline-none focus:ring-2 focus:ring-blue-500"
-            >
+            <ManagerStatCard
+              title="Approved"
+              value={approved}
+              color="green"
+            />
 
-              <option value="All">
-                All
-              </option>
-
-              <option value="Pending">
-                Pending
-              </option>
-
-              <option value="Approved">
-                Approved
-              </option>
-
-              <option value="Rejected">
-                Rejected
-              </option>
-
-            </select>
+            <ManagerStatCard
+              title="Rejected"
+              value={rejected}
+              color="red"
+            />
 
           </div>
 
-        </div>
+
+          {/* ==================================================
+              Header + Search + Filter + Export
+          ================================================== */}
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-5 mt-6 sm:mt-8">
+
+            <div className="flex flex-col lg:flex-row justify-between gap-5">
+
+              {/* Heading */}
+              <div>
+
+                <h2 className="text-xl sm:text-2xl font-bold">
+                  Employee Leave Requests
+                </h2>
+
+                <p className="text-gray-500 mt-1 text-sm sm:text-base">
+                  Review and manage employee leave applications.
+                </p>
+
+              </div>
 
 
-        {/* =====================================================
-            Leave Table
-        ===================================================== */}
+              {/* Export Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
 
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mt-4">
-
-          <div className="overflow-x-auto">
-
-            <table className="w-full">
-
-              <thead className="bg-gray-200">
-
-                <tr>
-
-                  <th className="p-4 text-left">
-                    Employee
-                  </th>
-
-                  <th className="p-4 text-left">
-                    Reason
-                  </th>
-
-                  <th className="p-4 text-center">
-                    From
-                  </th>
-
-                  <th className="p-4 text-center">
-                    To
-                  </th>
-
-                  <th className="p-4 text-center">
-                    Status
-                  </th>
-
-                  <th className="p-4 text-center">
-                    Document
-                  </th>
-
-                  <th className="p-4 text-left">
-                    Remarks
-                  </th>
-
-                  <th className="p-4 text-center">
-                    Action
-                  </th>
-
-                </tr>
-
-              </thead>
+                <button
+                  type="button"
+                  onClick={exportPDF}
+                  className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-xl"
+                >
+                  Export PDF
+                </button>
 
 
-              <tbody>
+                <button
+                  type="button"
+                  onClick={exportExcel}
+                  className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl"
+                >
+                  Export Excel
+                </button>
 
-                {filteredRequests.length === 0 ? (
+              </div>
+
+            </div>
+
+
+            {/* Search + Filter */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-5">
+
+              <input
+                type="text"
+                placeholder="Search Employee..."
+                value={search}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+                className="border rounded-xl px-4 py-3 w-full sm:max-w-md outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value)
+                }
+                className="border rounded-xl px-4 py-3 w-full sm:w-auto bg-white outline-none focus:ring-2 focus:ring-blue-500"
+              >
+
+                <option value="All">
+                  All
+                </option>
+
+                <option value="Pending">
+                  Pending
+                </option>
+
+                <option value="Approved">
+                  Approved
+                </option>
+
+                <option value="Rejected">
+                  Rejected
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          {/* ==================================================
+              MOBILE LEAVE REQUEST CARDS
+          ================================================== */}
+          <div className="block md:hidden mt-4 space-y-4">
+
+            {filteredRequests.length === 0 ? (
+
+              <div className="bg-white rounded-xl shadow-lg p-8 text-center text-gray-500">
+                No Leave Requests Found
+              </div>
+
+            ) : (
+
+              filteredRequests.map((leave) => (
+
+                <div
+                  key={leave.id}
+                  className="bg-white rounded-xl shadow-lg p-4"
+                >
+
+                  {/* Employee */}
+                  <div className="mb-4">
+
+                    <p className="text-xs font-semibold text-gray-500 uppercase">
+                      Employee
+                    </p>
+
+                    <p className="font-semibold text-gray-800 mt-1 break-words">
+                      {leave.users?.username || "-"}
+                    </p>
+
+                  </div>
+
+
+                  {/* Reason */}
+                  <div className="mb-4">
+
+                    <p className="text-xs font-semibold text-gray-500 uppercase">
+                      Reason
+                    </p>
+
+                    <p className="text-gray-700 mt-1 break-words">
+                      {leave.reason || "-"}
+                    </p>
+
+                  </div>
+
+
+                  {/* Dates */}
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+
+                    <div>
+
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        From
+                      </p>
+
+                      <p className="text-sm text-gray-800 mt-1">
+                        {formatDate(leave.start_date)}
+                      </p>
+
+                    </div>
+
+
+                    <div>
+
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        To
+                      </p>
+
+                      <p className="text-sm text-gray-800 mt-1">
+                        {formatDate(leave.end_date)}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+
+                  {/* Status */}
+                  <div className="mb-4">
+
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                      Status
+                    </p>
+
+                    {leave.status === "Pending" && (
+
+                      <span className="inline-block bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
+                        Pending
+                      </span>
+
+                    )}
+
+                    {leave.status === "Approved" && (
+
+                      <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                        Approved
+                      </span>
+
+                    )}
+
+                    {leave.status === "Rejected" && (
+
+                      <span className="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+                        Rejected
+                      </span>
+
+                    )}
+
+                  </div>
+
+
+                  {/* Document */}
+                  <div className="mb-4">
+
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                      Document
+                    </p>
+
+                    {leave.document_url ? (
+
+                      <a
+                        href={leave.document_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm"
+                      >
+                        <FileText size={16} />
+                        View Document
+                      </a>
+
+                    ) : (
+
+                      <span className="text-gray-400">
+                        -
+                      </span>
+
+                    )}
+
+                  </div>
+
+
+                  {/* Remarks */}
+                  <div className="mb-4">
+
+                    <p className="text-xs font-semibold text-gray-500 uppercase">
+                      Remarks
+                    </p>
+
+                    <p className="text-gray-700 mt-1 break-words">
+                      {leave.manager_remarks || "-"}
+                    </p>
+
+                  </div>
+
+
+                  {/* Action */}
+                  <div>
+
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                      Action
+                    </p>
+
+
+                    {leave.status === "Pending" ? (
+
+                      <div className="grid grid-cols-2 gap-2">
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openConfirmationModal(
+                              leave,
+                              "Approved"
+                            )
+                          }
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-3 rounded-lg text-sm font-medium"
+                        >
+                          Approve
+                        </button>
+
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openConfirmationModal(
+                              leave,
+                              "Rejected"
+                            )
+                          }
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-3 rounded-lg text-sm font-medium"
+                        >
+                          Reject
+                        </button>
+
+                      </div>
+
+                    ) : leave.status === "Approved" ? (
+
+                      <span className="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold text-sm">
+                        ✓ Approved
+                      </span>
+
+                    ) : (
+
+                      <span className="inline-block bg-red-100 text-red-700 px-4 py-2 rounded-full font-semibold text-sm">
+                        ✗ Rejected
+                      </span>
+
+                    )}
+
+                  </div>
+
+                </div>
+
+              ))
+
+            )}
+
+          </div>
+
+
+          {/* ==================================================
+              DESKTOP LEAVE TABLE
+          ================================================== */}
+          <div className="hidden md:block bg-white rounded-xl shadow-lg overflow-hidden mt-4">
+
+            <div className="overflow-x-auto">
+
+              <table className="w-full min-w-[1050px]">
+
+                <thead className="bg-gray-200">
 
                   <tr>
 
-                    <td
-                      colSpan="8"
-                      className="text-center p-8 text-gray-500"
-                    >
-                      No Leave Requests Found
-                    </td>
+                    <th className="p-4 text-left">
+                      Employee
+                    </th>
+
+                    <th className="p-4 text-left">
+                      Reason
+                    </th>
+
+                    <th className="p-4 text-center">
+                      From
+                    </th>
+
+                    <th className="p-4 text-center">
+                      To
+                    </th>
+
+                    <th className="p-4 text-center">
+                      Status
+                    </th>
+
+                    <th className="p-4 text-center">
+                      Document
+                    </th>
+
+                    <th className="p-4 text-left">
+                      Remarks
+                    </th>
+
+                    <th className="p-4 text-center">
+                      Action
+                    </th>
 
                   </tr>
 
-                ) : (
-
-                  filteredRequests.map((leave) => (
-
-                    <tr
-                      key={leave.id}
-                      className="border-t hover:bg-gray-50"
-                    >
-
-                      <td className="p-4 font-medium">
-                        {leave.users?.username || "-"}
-                      </td>
+                </thead>
 
 
-                      <td className="p-4 max-w-sm whitespace-normal break-words">
-                        {leave.reason || "-"}
-                      </td>
+                <tbody>
 
+                  {filteredRequests.length === 0 ? (
 
-                      <td className="p-4 text-center">
-                        {formatDate(
-                          leave.start_date
-                        )}
-                      </td>
+                    <tr>
 
-
-                      <td className="p-4 text-center">
-                        {formatDate(
-                          leave.end_date
-                        )}
-                      </td>
-
-
-                      <td className="p-4 text-center">
-
-                        {leave.status === "Pending" && (
-
-                          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
-                            Pending
-                          </span>
-
-                        )}
-
-                        {leave.status === "Approved" && (
-
-                          <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                            Approved
-                          </span>
-
-                        )}
-
-                        {leave.status === "Rejected" && (
-
-                          <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
-                            Rejected
-                          </span>
-
-                        )}
-
-                      </td>
-
-
-                      <td className="p-4 text-center">
-
-                        {leave.document_url ? (
-
-                          <a
-                            href={leave.document_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm"
-                          >
-
-                            <FileText size={16} />
-
-                            View
-
-                          </a>
-
-                        ) : (
-
-                          <span className="text-gray-400">
-                            -
-                          </span>
-
-                        )}
-
-                      </td>
-
-
-                      <td className="p-4 max-w-xs whitespace-normal break-words">
-
-                        {leave.manager_remarks || "-"}
-
-                      </td>
-
-
-                      <td className="p-4 text-center">
-
-                        {leave.status === "Pending" ? (
-
-                          <div className="flex justify-center gap-2">
-
-                            <button
-                              onClick={() =>
-                                openConfirmationModal(
-                                  leave,
-                                  "Approved"
-                                )
-                              }
-                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm"
-                            >
-                              Approve
-                            </button>
-
-
-                            <button
-                              onClick={() =>
-                                openConfirmationModal(
-                                  leave,
-                                  "Rejected"
-                                )
-                              }
-                              className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm"
-                            >
-                              Reject
-                            </button>
-
-                          </div>
-
-                        ) : leave.status === "Approved" ? (
-
-                          <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold text-sm">
-                            ✓ Approved
-                          </span>
-
-                        ) : (
-
-                          <span className="bg-red-100 text-red-700 px-4 py-2 rounded-full font-semibold text-sm">
-                            ✗ Rejected
-                          </span>
-
-                        )}
-
+                      <td
+                        colSpan="8"
+                        className="text-center p-8 text-gray-500"
+                      >
+                        No Leave Requests Found
                       </td>
 
                     </tr>
 
-                  ))
+                  ) : (
 
-                )}
+                    filteredRequests.map((leave) => (
 
-              </tbody>
+                      <tr
+                        key={leave.id}
+                        className="border-t hover:bg-gray-50"
+                      >
 
-            </table>
-
-          </div>
-
-        </div>
-
-
-        {/* =====================================================
-            Remarks Modal
-        ===================================================== */}
-
-        {modalOpen && (
-
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-
-              <h3 className="text-xl font-bold mb-2">
-                Confirm {targetStatus} Leave
-              </h3>
+                        <td className="p-4 font-medium">
+                          {leave.users?.username || "-"}
+                        </td>
 
 
-              <p className="text-gray-600 text-sm mb-4">
-
-                Add optional remarks for{" "}
-
-                <span className="font-semibold">
-
-                  {selectedLeave?.users?.username}
-
-                </span>
-
-                's request.
-
-              </p>
+                        <td className="p-4 max-w-sm whitespace-normal break-words">
+                          {leave.reason || "-"}
+                        </td>
 
 
-              <form
-                onSubmit={handleConfirmStatusUpdate}
-              >
-
-                <textarea
-                  value={remarks}
-                  onChange={(e) =>
-                    setRemarks(e.target.value)
-                  }
-                  placeholder="Enter Manager Remarks..."
-                  rows="4"
-                  className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-                />
+                        <td className="p-4 text-center">
+                          {formatDate(leave.start_date)}
+                        </td>
 
 
-                <div className="flex justify-end gap-3">
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setModalOpen(false)
-                    }
-                    disabled={isSubmitting}
-                    className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100"
-                  >
-                    Cancel
-                  </button>
+                        <td className="p-4 text-center">
+                          {formatDate(leave.end_date)}
+                        </td>
 
 
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`px-4 py-2 rounded-lg text-white font-medium ${
-                      targetStatus === "Approved"
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-red-600 hover:bg-red-700"
-                    } disabled:opacity-50`}
-                  >
+                        <td className="p-4 text-center">
 
-                    {isSubmitting
-                      ? "Submitting..."
-                      : `Confirm ${targetStatus}`}
+                          {leave.status === "Pending" && (
 
-                  </button>
+                            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium">
+                              Pending
+                            </span>
 
-                </div>
+                          )}
 
-              </form>
+                          {leave.status === "Approved" && (
+
+                            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                              Approved
+                            </span>
+
+                          )}
+
+                          {leave.status === "Rejected" && (
+
+                            <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+                              Rejected
+                            </span>
+
+                          )}
+
+                        </td>
+
+
+                        <td className="p-4 text-center">
+
+                          {leave.document_url ? (
+
+                            <a
+                              href={leave.document_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm"
+                            >
+
+                              <FileText size={16} />
+
+                              View
+
+                            </a>
+
+                          ) : (
+
+                            <span className="text-gray-400">
+                              -
+                            </span>
+
+                          )}
+
+                        </td>
+
+
+                        <td className="p-4 max-w-xs whitespace-normal break-words">
+                          {leave.manager_remarks || "-"}
+                        </td>
+
+
+                        <td className="p-4 text-center">
+
+                          {leave.status === "Pending" ? (
+
+                            <div className="flex justify-center gap-2">
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openConfirmationModal(
+                                    leave,
+                                    "Approved"
+                                  )
+                                }
+                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm"
+                              >
+                                Approve
+                              </button>
+
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openConfirmationModal(
+                                    leave,
+                                    "Rejected"
+                                  )
+                                }
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm"
+                              >
+                                Reject
+                              </button>
+
+                            </div>
+
+                          ) : leave.status === "Approved" ? (
+
+                            <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold text-sm">
+                              ✓ Approved
+                            </span>
+
+                          ) : (
+
+                            <span className="bg-red-100 text-red-700 px-4 py-2 rounded-full font-semibold text-sm">
+                              ✗ Rejected
+                            </span>
+
+                          )}
+
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  )}
+
+                </tbody>
+
+              </table>
 
             </div>
 
           </div>
 
-        )}
+
+          {/* ==================================================
+              Approve / Reject Modal
+          ================================================== */}
+          {modalOpen && (
+
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+
+              <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+
+                <h3 className="text-xl font-bold mb-2">
+                  Confirm {targetStatus} Leave
+                </h3>
+
+
+                <p className="text-gray-600 text-sm mb-4">
+
+                  Add optional remarks for{" "}
+
+                  <span className="font-semibold break-words">
+                    {selectedLeave?.users?.username}
+                  </span>
+
+                  's request.
+
+                </p>
+
+
+                <form
+                  onSubmit={handleConfirmStatusUpdate}
+                >
+
+                  <textarea
+                    value={remarks}
+                    onChange={(e) =>
+                      setRemarks(e.target.value)
+                    }
+                    placeholder="Enter Manager Remarks..."
+                    rows="4"
+                    className="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-y"
+                  />
+
+
+                  <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setModalOpen(false)
+                      }
+                      disabled={isSubmitting}
+                      className="w-full sm:w-auto px-4 py-3 rounded-lg border text-gray-700 hover:bg-gray-100"
+                    >
+                      Cancel
+                    </button>
+
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className={`
+                        w-full
+                        sm:w-auto
+                        px-4
+                        py-3
+                        rounded-lg
+                        text-white
+                        font-medium
+                        ${
+                          targetStatus === "Approved"
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-red-600 hover:bg-red-700"
+                        }
+                        disabled:opacity-50
+                      `}
+                    >
+
+                      {isSubmitting
+                        ? "Submitting..."
+                        : `Confirm ${targetStatus}`}
+
+                    </button>
+
+                  </div>
+
+                </form>
+
+              </div>
+
+            </div>
+
+          )}
+
+        </div>
 
       </main>
 

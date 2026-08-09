@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+
 import api from "../services/api";
 import useAuth from "../hooks/useAuth";
 import toast from "react-hot-toast";
+
 export default function ManagerLogin() {
 
   const navigate = useNavigate();
@@ -15,6 +17,10 @@ export default function ManagerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+
+  // ============================================================
+  // Handle Manager Login
+  // ============================================================
   const handleLogin = async (e) => {
 
     e.preventDefault();
@@ -25,20 +31,28 @@ export default function ManagerLogin() {
 
       const res = await api.post("/auth/login", {
         username,
-        password
+        password,
       });
 
+
+      // ========================================================
+      // Make Sure User Is a Manager
+      // ========================================================
       if (res.data.user.role !== "manager") {
 
-  toast.error("Please login from the Employee Portal.");
+        toast.error("Please login from the Employee Portal.");
 
-  setLoading(false);
+        setLoading(false);
 
-  return;
+        return;
+      }
 
-}
 
+      // ========================================================
+      // Store Authentication Information
+      // ========================================================
       localStorage.setItem("token", res.data.token);
+
       localStorage.setItem(
         "user",
         JSON.stringify(res.data.user)
@@ -46,82 +60,129 @@ export default function ManagerLogin() {
 
       setUser(res.data.user);
 
-navigate("/manager");
+
+      // ========================================================
+      // Navigate to Manager Dashboard
+      // ========================================================
+      navigate("/manager");
+
     } catch (err) {
 
-  toast.error(
-    err.response?.data?.message ||
-    "Login Failed"
-  );
+      toast.error(
+        err.response?.data?.message ||
+        "Login Failed"
+      );
 
-} finally {
+    } finally {
 
-  setLoading(false);
+      setLoading(false);
 
-}
+    }
 
   };
 
+
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-green-100 to-emerald-100 flex justify-center items-center">
+    <div className="min-h-screen bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center px-4 sm:px-6 py-8">
 
-      <div className="bg-white rounded-3xl shadow-2xl w-[430px] p-8">
+      {/* ======================================================
+          Manager Login Card
 
+          Mobile:
+          - Space around card
+          - Responsive padding
+
+          Desktop:
+          - Maximum width 430px
+      ====================================================== */}
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-[430px] p-6 sm:p-8">
+
+
+        {/* ====================================================
+            Back Button
+        ==================================================== */}
         <Link
           to="/"
-          className="flex items-center gap-2 text-green-600 mb-5"
+          className="flex items-center gap-2 text-green-600 text-base sm:text-lg mb-6"
         >
-          <ArrowLeft size={20}/>
+          <ArrowLeft size={20} />
           Back
         </Link>
 
-        <h1 className="text-3xl font-bold text-center text-green-700">
+
+        {/* ====================================================
+            Heading
+        ==================================================== */}
+        <h1 className="text-3xl sm:text-4xl font-bold text-center text-green-700 leading-tight">
           Manager Login
         </h1>
 
-        <p className="text-center text-gray-500 mt-2">
+
+        {/* Welcome Text */}
+        <p className="text-center text-gray-500 mt-2 text-base sm:text-lg">
           Welcome Manager
         </p>
 
+
+        {/* ====================================================
+            Login Form
+        ==================================================== */}
         <form
           onSubmit={handleLogin}
           className="mt-8 space-y-5"
         >
 
+          {/* Username */}
           <input
             type="text"
             placeholder="Username"
-            className="w-full border rounded-xl p-3"
+            className="w-full border rounded-xl p-3 sm:p-4 text-base sm:text-lg outline-none focus:ring-2 focus:ring-green-500"
             value={username}
-            onChange={(e)=>setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
 
+
+          {/* Password */}
           <div className="relative">
 
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="w-full border rounded-xl p-3"
+              className="w-full border rounded-xl p-3 sm:p-4 pr-12 text-base sm:text-lg outline-none focus:ring-2 focus:ring-green-500"
               value={password}
-              onChange={(e)=>setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
 
+
+            {/* Password Visibility */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-4"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
+              aria-label={
+                showPassword
+                  ? "Hide password"
+                  : "Show password"
+              }
             >
-              {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
+              {showPassword ? (
+                <EyeOff size={22} />
+              ) : (
+                <Eye size={22} />
+              )}
             </button>
 
           </div>
 
+
+          {/* Login Button */}
           <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold"
+            className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-70 text-white py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition"
           >
             {loading ? "Logging In..." : "Login"}
           </button>
@@ -133,5 +194,4 @@ navigate("/manager");
     </div>
 
   );
-
 }

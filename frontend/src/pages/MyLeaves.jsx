@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+
 import api from "../services/api";
+
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
@@ -7,9 +9,10 @@ export default function MyLeaves() {
 
   const [leaves, setLeaves] = useState([]);
 
-  // ==============================
-  // Fetch My Leaves
-  // ==============================
+
+  // ============================================================
+  // Fetch Employee Leave Requests
+  // ============================================================
   const fetchLeaves = async () => {
 
     try {
@@ -20,21 +23,26 @@ export default function MyLeaves() {
 
     } catch (error) {
 
-      console.error(error);
+      console.error("Leave Fetch Error:", error);
 
     }
 
   };
 
-  // ==============================
-  // Load Leaves
-  // ==============================
+
+  // ============================================================
+  // Load Leaves When Page Opens
+  // ============================================================
   useEffect(() => {
 
     fetchLeaves();
 
   }, []);
 
+
+  // ============================================================
+  // Return Status Badge Color
+  // ============================================================
   const badgeColor = (status) => {
 
     switch (status) {
@@ -52,128 +60,314 @@ export default function MyLeaves() {
 
   };
 
+
   return (
 
-    <div className="flex">
+    <div className="flex min-h-screen bg-slate-100">
 
+      {/* ======================================================
+          Employee Sidebar
+      ====================================================== */}
       <Sidebar />
 
-      <main className="flex-1 bg-slate-100 min-h-screen p-8">
 
-        <Navbar />
+      {/* ======================================================
+          Main Content
+      ====================================================== */}
+      <main className="flex-1 min-w-0 bg-slate-100 min-h-screen p-3 sm:p-5 md:p-8">
 
-        <div className="bg-white rounded-xl shadow-lg mt-8 overflow-hidden">
+        <div className="w-full max-w-6xl mx-auto">
 
-          <div className="p-6 border-b">
+          <Navbar />
 
-            <h2 className="text-2xl font-bold">
 
-              My Leave Requests
+          {/* ==================================================
+              Leave Requests Container
+          ================================================== */}
+          <div className="bg-white rounded-xl shadow-lg mt-6 sm:mt-8 overflow-hidden">
 
-            </h2>
 
-          </div>
+            {/* =================================================
+                Page Heading
+            ================================================= */}
+            <div className="p-5 sm:p-6 border-b">
 
-          <table className="w-full">
+              <h2 className="text-xl sm:text-2xl font-bold">
+                My Leave Requests
+              </h2>
 
-            <thead className="bg-gray-200">
+            </div>
 
-              <tr>
 
-                <th className="p-4">Reason</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Status</th>
-                <th>Remarks</th>
-                <th>Document</th>
+            {/* =================================================
+                MOBILE VIEW
 
-              </tr>
+                Cards are used instead of the wide table.
+            ================================================= */}
+            <div className="block md:hidden p-4 space-y-4">
 
-            </thead>
+              {leaves.length === 0 ? (
 
-            <tbody>
+                <div className="text-center text-gray-500 py-8">
+                  No leave requests found.
+                </div>
 
-              {
+              ) : (
 
                 leaves.map((leave) => (
 
-                  <tr
+                  <div
                     key={leave.id}
-                    className="border-t"
+                    className="border border-gray-200 rounded-xl p-4 shadow-sm"
                   >
 
-                    <td className="p-4">
+                    {/* Leave Reason */}
+                    <div className="mb-4">
 
-                      {leave.reason}
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        Reason
+                      </p>
 
-                    </td>
+                      <p className="mt-1 text-gray-800 break-words">
+                        {leave.reason}
+                      </p>
 
-                    <td className="text-center">
+                    </div>
 
-                      {leave.start_date}
 
-                    </td>
+                    {/* Dates */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
 
-                    <td className="text-center">
+                      <div>
 
-                      {leave.end_date}
+                        <p className="text-xs font-semibold text-gray-500 uppercase">
+                          Start Date
+                        </p>
 
-                    </td>
+                        <p className="mt-1 text-sm text-gray-800 break-words">
+                          {leave.start_date}
+                        </p>
 
-                    <td className="text-center">
+                      </div>
+
+
+                      <div>
+
+                        <p className="text-xs font-semibold text-gray-500 uppercase">
+                          End Date
+                        </p>
+
+                        <p className="mt-1 text-sm text-gray-800 break-words">
+                          {leave.end_date}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* Status */}
+                    <div className="mb-4">
+
+                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                        Status
+                      </p>
 
                       <span
-                        className={`px-3 py-1 rounded-full ${badgeColor(leave.status)}`}
+                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${badgeColor(
+                          leave.status
+                        )}`}
                       >
-
                         {leave.status}
-
                       </span>
 
-                    </td>
+                    </div>
 
-                    <td className="text-center">
 
-                      {leave.manager_remarks || "-"}
+                    {/* Manager Remarks */}
+                    <div className="mb-4">
 
-                    </td>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        Manager Remarks
+                      </p>
 
-                    <td className="text-center">
+                      <p className="mt-1 text-gray-700 break-words">
+                        {leave.manager_remarks || "-"}
+                      </p>
 
-                      {
+                    </div>
 
-                        leave.document_url
 
-                        ?
+                    {/* Document */}
+                    <div>
+
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        Document
+                      </p>
+
+                      {leave.document_url ? (
 
                         <a
                           href={leave.document_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-blue-600 underline"
+                          className="inline-block mt-1 text-blue-600 underline font-medium"
                         >
-
-                          View
-
+                          View Document
                         </a>
 
-                        :
+                      ) : (
 
-                        "-"
+                        <p className="mt-1 text-gray-500">
+                          -
+                        </p>
 
-                      }
+                      )}
 
-                    </td>
+                    </div>
 
-                  </tr>
+                  </div>
 
                 ))
 
-              }
+              )}
 
-            </tbody>
+            </div>
 
-          </table>
+
+            {/* =================================================
+                DESKTOP / TABLET VIEW
+
+                Existing table is retained for larger screens.
+            ================================================= */}
+            <div className="hidden md:block overflow-x-auto">
+
+              <table className="w-full min-w-[850px]">
+
+                <thead className="bg-gray-200">
+
+                  <tr>
+
+                    <th className="p-4 text-left">
+                      Reason
+                    </th>
+
+                    <th className="p-4">
+                      Start
+                    </th>
+
+                    <th className="p-4">
+                      End
+                    </th>
+
+                    <th className="p-4">
+                      Status
+                    </th>
+
+                    <th className="p-4">
+                      Remarks
+                    </th>
+
+                    <th className="p-4">
+                      Document
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {leaves.length === 0 ? (
+
+                    <tr>
+
+                      <td
+                        colSpan="6"
+                        className="text-center text-gray-500 py-8"
+                      >
+                        No leave requests found.
+                      </td>
+
+                    </tr>
+
+                  ) : (
+
+                    leaves.map((leave) => (
+
+                      <tr
+                        key={leave.id}
+                        className="border-t"
+                      >
+
+                        <td className="p-4">
+                          {leave.reason}
+                        </td>
+
+
+                        <td className="text-center p-4">
+                          {leave.start_date}
+                        </td>
+
+
+                        <td className="text-center p-4">
+                          {leave.end_date}
+                        </td>
+
+
+                        <td className="text-center p-4">
+
+                          <span
+                            className={`px-3 py-1 rounded-full ${badgeColor(
+                              leave.status
+                            )}`}
+                          >
+                            {leave.status}
+                          </span>
+
+                        </td>
+
+
+                        <td className="text-center p-4">
+                          {leave.manager_remarks || "-"}
+                        </td>
+
+
+                        <td className="text-center p-4">
+
+                          {leave.document_url ? (
+
+                            <a
+                              href={leave.document_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              View
+                            </a>
+
+                          ) : (
+
+                            "-"
+
+                          )}
+
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
 
         </div>
 
@@ -182,5 +376,4 @@ export default function MyLeaves() {
     </div>
 
   );
-
 }

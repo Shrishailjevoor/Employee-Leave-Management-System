@@ -1,16 +1,29 @@
 import { useEffect, useState } from "react";
+
 import api from "../services/api";
+
 import ManagerNavbar from "../components/manager/ManagerNavbar";
 import ManagerSidebar from "../components/manager/ManagerSidebar";
 
 export default function Employees() {
 
+  // ============================================================
+  // Employee Data
+  // ============================================================
   const [employees, setEmployees] = useState([]);
+
   const [search, setSearch] = useState("");
 
+
+  // ============================================================
+  // Load Employees
+  // ============================================================
   useEffect(() => {
+
     loadEmployees();
+
   }, []);
+
 
   async function loadEmployees() {
 
@@ -18,121 +31,251 @@ export default function Employees() {
 
       const res = await api.get("/employees");
 
-      setEmployees(res.data.employees);
+      setEmployees(res.data.employees || []);
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Employee Fetch Error:",
+        error
+      );
 
     }
 
   }
 
-  const filteredEmployees = employees.filter((employee) =>
-    employee.username
-      .toLowerCase()
-      .includes(search.toLowerCase())
+
+  // ============================================================
+  // Search Employees
+  // ============================================================
+  const filteredEmployees = employees.filter(
+    (employee) =>
+      employee.username
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
   );
+
 
   return (
 
-    <div className="flex">
+    <div className="flex min-h-screen bg-slate-100">
 
+      {/* ======================================================
+          Manager Sidebar
+      ====================================================== */}
       <ManagerSidebar />
 
-      <main className="flex-1 bg-slate-100 min-h-screen p-8">
 
-        <ManagerNavbar />
+      {/* ======================================================
+          Main Content
+      ====================================================== */}
+      <main className="flex-1 min-w-0 bg-slate-100 min-h-screen p-3 sm:p-5 md:p-8">
 
-        <div className="bg-white rounded-xl shadow-lg mt-8 p-6">
+        <div className="w-full max-w-6xl mx-auto">
 
-          <div className="flex justify-between items-center mb-6">
+          {/* Manager Navbar */}
+          <ManagerNavbar />
 
-            <h2 className="text-3xl font-bold">
 
-              Employees
+          {/* ==================================================
+              Employees Container
+          ================================================== */}
+          <div className="bg-white rounded-xl shadow-lg mt-6 sm:mt-8 p-4 sm:p-6">
 
-            </h2>
 
-            <input
-              type="text"
-              placeholder="Search Employee..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="border rounded-lg px-4 py-2 w-72"
-            />
+            {/* =================================================
+                Header + Search
+            ================================================= */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 
-          </div>
+              <h2 className="text-2xl sm:text-3xl font-bold">
+                Employees
+              </h2>
 
-          <table className="w-full">
 
-            <thead className="bg-gray-200">
+              {/* Search */}
+              <input
+                type="text"
+                placeholder="Search Employee..."
+                value={search}
+                onChange={(e) =>
+                  setSearch(e.target.value)
+                }
+                className="
+                  border
+                  rounded-xl
+                  px-4
+                  py-3
+                  w-full
+                  lg:w-72
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                "
+              />
 
-              <tr>
+            </div>
 
-                <th className="p-4 text-left">
-                  Username
-                </th>
 
-                <th className="text-left">
-                  Role
-                </th>
+            {/* =================================================
+                MOBILE VIEW
+            ================================================= */}
+            <div className="block md:hidden space-y-4">
 
-                <th className="text-left">
-                  Created
-                </th>
+              {filteredEmployees.length === 0 ? (
 
-              </tr>
+                <div className="text-center text-gray-500 py-8">
+                  No Employees Found
+                </div>
 
-            </thead>
-
-            <tbody>
-
-              {
+              ) : (
 
                 filteredEmployees.map((employee) => (
 
-                  <tr
+                  <div
                     key={employee.id}
-                    className="border-t hover:bg-gray-50"
+                    className="border border-gray-200 rounded-xl p-4 shadow-sm"
                   >
 
-                    <td className="p-4">
+                    {/* Username */}
+                    <div className="mb-4">
 
-                      {employee.username}
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        Username
+                      </p>
 
-                    </td>
+                      <p className="mt-1 font-medium text-gray-800 break-words">
+                        {employee.username}
+                      </p>
 
-                    <td>
+                    </div>
 
-                      <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
 
+                    {/* Role */}
+                    <div className="mb-4">
+
+                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                        Role
+                      </p>
+
+                      <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
                         {employee.role}
-
                       </span>
 
-                    </td>
+                    </div>
 
-                    <td>
 
-                      {
+                    {/* Created */}
+                    <div>
 
-                        new Date(employee.created_at)
-                          .toLocaleDateString()
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        Created
+                      </p>
 
-                      }
+                      <p className="mt-1 text-gray-700">
+                        {new Date(
+                          employee.created_at
+                        ).toLocaleDateString()}
+                      </p>
 
-                    </td>
+                    </div>
 
-                  </tr>
+                  </div>
 
                 ))
 
-              }
+              )}
 
-            </tbody>
+            </div>
 
-          </table>
+
+            {/* =================================================
+                DESKTOP TABLE
+            ================================================= */}
+            <div className="hidden md:block overflow-x-auto">
+
+              <table className="w-full min-w-[650px]">
+
+                <thead className="bg-gray-200">
+
+                  <tr>
+
+                    <th className="p-4 text-left">
+                      Username
+                    </th>
+
+                    <th className="p-4 text-left">
+                      Role
+                    </th>
+
+                    <th className="p-4 text-left">
+                      Created
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {filteredEmployees.length === 0 ? (
+
+                    <tr>
+
+                      <td
+                        colSpan="3"
+                        className="text-center p-8 text-gray-500"
+                      >
+                        No Employees Found
+                      </td>
+
+                    </tr>
+
+                  ) : (
+
+                    filteredEmployees.map((employee) => (
+
+                      <tr
+                        key={employee.id}
+                        className="border-t hover:bg-gray-50"
+                      >
+
+                        <td className="p-4">
+                          {employee.username}
+                        </td>
+
+
+                        <td className="p-4">
+
+                          <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                            {employee.role}
+                          </span>
+
+                        </td>
+
+
+                        <td className="p-4">
+
+                          {new Date(
+                            employee.created_at
+                          ).toLocaleDateString()}
+
+                        </td>
+
+                      </tr>
+
+                    ))
+
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
 
         </div>
 
@@ -141,5 +284,4 @@ export default function Employees() {
     </div>
 
   );
-
 }

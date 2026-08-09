@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import api from "../services/api";
 import toast from "react-hot-toast";
+
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
@@ -9,6 +11,9 @@ export default function ApplyLeave() {
 
   const navigate = useNavigate();
 
+  // ============================================================
+  // Form State
+  // ============================================================
   const [reason, setReason] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -16,6 +21,10 @@ export default function ApplyLeave() {
 
   const [loading, setLoading] = useState(false);
 
+
+  // ============================================================
+  // Submit Leave Application
+  // ============================================================
   const submitLeave = async (e) => {
 
     e.preventDefault();
@@ -40,178 +49,210 @@ export default function ApplyLeave() {
         },
       });
 
-toast.success("Leave Applied Successfully");
+      toast.success("Leave Applied Successfully");
+
       navigate("/my-leaves");
 
     } catch (error) {
 
-  toast.error(
-    error.response?.data?.message ||
-    "Something went wrong"
-  );
+      toast.error(
+        error.response?.data?.message ||
+        "Something went wrong"
+      );
 
-} finally {
+    } finally {
 
-  setLoading(false);
+      setLoading(false);
 
-}
+    }
 
   };
 
+
   return (
 
-    <div className="flex">
+    <div className="flex min-h-screen bg-slate-100">
 
-      <Sidebar/>
+      {/* ======================================================
+          Employee Sidebar
+      ====================================================== */}
+      <Sidebar />
 
-      <main className="flex-1 bg-slate-100 min-h-screen p-8">
 
-        <Navbar/>
+      {/* ======================================================
+          Main Content
+      ====================================================== */}
+      <main className="flex-1 min-w-0 bg-slate-100 min-h-screen p-3 sm:p-5 md:p-8">
 
-        <div className="bg-white mt-8 rounded-2xl shadow-xl p-8 max-w-2xl">
+        {/* Keep content away from mobile edges */}
+        <div className="w-full max-w-5xl mx-auto">
 
-          <h1 className="text-3xl font-bold mb-8">
+          <Navbar />
 
-            Apply Leave
 
-          </h1>
+          {/* ==================================================
+              Apply Leave Card
 
-          <form
-            onSubmit={submitLeave}
-            className="space-y-6"
-          >
+              Mobile:
+              - Full available width
+              - Space around edges
+              - Smaller padding
 
-            <div>
+              Desktop:
+              - Maximum width
+              - Larger padding
+          ================================================== */}
+          <div className="bg-white mt-6 sm:mt-8 rounded-2xl shadow-xl p-5 sm:p-6 md:p-8 w-full max-w-2xl">
 
-              <label className="font-semibold">
+            {/* Heading */}
+            <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
+              Apply Leave
+            </h1>
 
-                Reason
 
-              </label>
-
-              <textarea
-
-                className="border w-full mt-2 rounded-xl p-3"
-
-                rows="4"
-
-                value={reason}
-
-                onChange={(e)=>setReason(e.target.value)}
-
-                required
-
-              />
-
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-5">
-
-              <div>
-
-                <label className="font-semibold">
-
-                  Start Date
-
-                </label>
-
-                <input
-
-                  type="date"
-
-                  className="border w-full mt-2 rounded-xl p-3"
-
-                  value={startDate}
-
-                  onChange={(e)=>setStartDate(e.target.value)}
-
-                  required
-
-                />
-
-              </div>
-
-              <div>
-
-                <label className="font-semibold">
-
-                  End Date
-
-                </label>
-
-                <input
-
-                  type="date"
-
-                  className="border w-full mt-2 rounded-xl p-3"
-
-                  value={endDate}
-
-                  onChange={(e)=>setEndDate(e.target.value)}
-
-                  required
-
-                />
-
-              </div>
-
-            </div>
-
-            <div className="mb-5">
-  <label className="block text-sm font-semibold text-gray-700 mb-2">
-    Medical Document (Optional)
-  </label>
-
-  <input
-    type="file"
-    accept=".pdf,.jpg,.jpeg,.png"
-    onChange={(e) => setDocument(e.target.files[0])}
-    className="
-      w-full
-      border
-      border-gray-300
-      rounded-lg
-      p-3
-      bg-white
-      cursor-pointer
-      file:mr-4
-      file:py-2
-      file:px-4
-      file:border-0
-      file:rounded-md
-      file:bg-blue-600
-      file:text-white
-      file:font-medium
-      hover:file:bg-blue-700
-    "
-  />
-</div>
-
-            <button
-
-              disabled={loading}
-
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl"
-
+            {/* =================================================
+                Leave Form
+            ================================================= */}
+            <form
+              onSubmit={submitLeave}
+              className="space-y-6"
             >
 
-              {
+              {/* =================================================
+                  Reason
+              ================================================= */}
+              <div>
 
-                loading
+                <label className="font-semibold block">
+                  Reason
+                </label>
 
-                ?
+                <textarea
+                  className="border w-full mt-2 rounded-xl p-3 sm:p-4 resize-y outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="4"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  required
+                />
 
-                "Submitting..."
+              </div>
 
-                :
 
-                "Apply Leave"
+              {/* =================================================
+                  Start & End Dates
+                  
+                  Mobile:
+                  One column
 
-              }
+                  Tablet/Desktop:
+                  Two columns
+              ================================================= */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
-            </button>
+                {/* Start Date */}
+                <div>
 
-          </form>
+                  <label className="font-semibold block">
+                    Start Date
+                  </label>
+
+                  <input
+                    type="date"
+                    className="border w-full mt-2 rounded-xl p-3 sm:p-4 outline-none focus:ring-2 focus:ring-blue-500"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    required
+                  />
+
+                </div>
+
+
+                {/* End Date */}
+                <div>
+
+                  <label className="font-semibold block">
+                    End Date
+                  </label>
+
+                  <input
+                    type="date"
+                    className="border w-full mt-2 rounded-xl p-3 sm:p-4 outline-none focus:ring-2 focus:ring-blue-500"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    required
+                  />
+
+                </div>
+
+              </div>
+
+
+              {/* =================================================
+                  Supporting Document
+              ================================================= */}
+              <div>
+
+                <label className="font-semibold block mb-2">
+                  Supporting Document
+                </label>
+
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => setDocument(e.target.files[0])}
+                  className="
+                    w-full
+                    border
+                    border-gray-300
+                    rounded-lg
+                    p-2 sm:p-3
+                    bg-white
+                    cursor-pointer
+                    text-sm
+                    sm:text-base
+                    file:mr-2
+                    sm:file:mr-4
+                    file:py-2
+                    file:px-3
+                    sm:file:px-4
+                    file:border-0
+                    file:rounded-md
+                    file:bg-blue-600
+                    file:text-white
+                    file:font-medium
+                    hover:file:bg-blue-700
+                  "
+                />
+
+              </div>
+
+
+              {/* =================================================
+                  Submit Button
+              ================================================= */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="
+                  w-full
+                  sm:w-auto
+                  bg-blue-600
+                  hover:bg-blue-700
+                  disabled:opacity-70
+                  text-white
+                  px-8
+                  py-3
+                  rounded-xl
+                  font-semibold
+                  transition
+                "
+              >
+                {loading ? "Submitting..." : "Apply Leave"}
+              </button>
+
+            </form>
+
+          </div>
 
         </div>
 
@@ -220,5 +261,4 @@ toast.success("Leave Applied Successfully");
     </div>
 
   );
-
 }

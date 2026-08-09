@@ -3,17 +3,50 @@ export default function ManagerStatCard({
   value,
   color,
 }) {
-  return (
-    <div
-      className={`bg-${color}-500 text-white rounded-2xl shadow-lg p-6`}
-    >
-      <h3 className="text-lg font-medium">
-        {title}
-      </h3>
 
-      <p className="text-4xl font-bold mt-4">
+  // ============================================================
+  // Manager Card Colors
+  // ============================================================
+  const colors = {
+
+    blue: "bg-blue-500",
+
+    yellow: "bg-yellow-500",
+
+    green: "bg-green-500",
+
+    red: "bg-red-500",
+
+  };
+
+
+  return (
+
+    <div
+      className={`
+        ${colors[color] || "bg-blue-500"}
+        text-white
+        rounded-2xl
+        shadow-lg
+        p-5
+        sm:p-6
+        w-full
+      `}
+    >
+
+      {/* Card Title */}
+      <p className="text-sm sm:text-base font-medium">
+        {title}
+      </p>
+
+
+      {/* Card Value */}
+      <p className="text-3xl sm:text-4xl font-bold mt-3 sm:mt-4">
         {value}
       </p>
+
     </div>
+
   );
+
 }
