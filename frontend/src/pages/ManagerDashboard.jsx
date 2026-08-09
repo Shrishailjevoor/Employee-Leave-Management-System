@@ -78,17 +78,41 @@ export default function ManagerDashboard() {
   // ============================================================
   // Format Date
   // ============================================================
-  const formatDate = (date) => {
+ const formatDate = (date) => {
+  if (!date) {
+    return "-";
+  }
 
-    if (!date) return "-";
+  // PostgreSQL DATE format: YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
+    const [year, month, day] = String(date).split("-");
 
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return `${Number(day)}/${Number(month)}/${year}`;
+  }
 
-  };
+  const value = String(date);
+
+  const hasTimezone =
+    value.endsWith("Z") ||
+    /[+-]\d{2}:\d{2}$/.test(value);
+
+  const parsedDate = new Date(
+    hasTimezone
+      ? value
+      : `${value}Z`
+  );
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "-";
+  }
+
+  return parsedDate.toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
+};
 
 
   // ============================================================

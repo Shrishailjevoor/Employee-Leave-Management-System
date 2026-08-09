@@ -125,20 +125,29 @@ export default function Reports() {
 
     doc.setFontSize(16);
 
-    doc.text(
-      "Leave Report",
-      14,
-      25
-    );
+  doc.text(
+  `Generated: ${new Date().toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  })}`,
+  14,
+  33
+);
 
 
     doc.setFontSize(11);
 
-    doc.text(
-      `Generated: ${new Date().toLocaleString()}`,
-      14,
-      33
-    );
+   doc.text(
+  `Generated: ${getIndiaDateTime()}`,
+  14,
+  33
+);
 
 
     doc.text(

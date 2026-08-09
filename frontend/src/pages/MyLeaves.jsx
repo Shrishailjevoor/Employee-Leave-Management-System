@@ -5,25 +5,70 @@ import api from "../services/api";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
+
+
 export default function MyLeaves() {
 
-  const [leaves, setLeaves] = useState([]);
+  const [leaves, setLeaves] =
+    useState([]);
 
+  const formatIndiaDate = (dateString) => {
 
+    if (!dateString) {
+      return "-";
+    }
+
+    const value = String(dateString);
+
+    // PostgreSQL DATE format: YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+
+      const [year, month, day] = value.split("-");
+
+      return `${Number(day)}/${Number(month)}/${year}`;
+    }
+
+    const hasTimezone =
+      value.endsWith("Z") ||
+      /[+-]\d{2}:\d{2}$/.test(value);
+
+    const date = new Date(
+      hasTimezone
+        ? value
+        : `${value}Z`
+    );
+
+    if (Number.isNaN(date.getTime())) {
+      return "-";
+    }
+
+    return date.toLocaleDateString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+    });
+  };
   // ============================================================
-  // Fetch Employee Leave Requests
+  // Fetch My Leaves
   // ============================================================
   const fetchLeaves = async () => {
 
     try {
 
-      const res = await api.get("/leave/my-leaves");
+      const res =
+        await api.get("/leave/my-leaves");
 
-      setLeaves(res.data.leaves);
+      setLeaves(
+        res.data.leaves || []
+      );
 
     } catch (error) {
 
-      console.error("Leave Fetch Error:", error);
+      console.error(
+        "Leave Error:",
+        error
+      );
 
     }
 
@@ -31,7 +76,7 @@ export default function MyLeaves() {
 
 
   // ============================================================
-  // Load Leaves When Page Opens
+  // Load Leaves
   // ============================================================
   useEffect(() => {
 
@@ -41,7 +86,7 @@ export default function MyLeaves() {
 
 
   // ============================================================
-  // Return Status Badge Color
+  // Status Badge Color
   // ============================================================
   const badgeColor = (status) => {
 
@@ -63,54 +108,196 @@ export default function MyLeaves() {
 
   return (
 
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-screen">
 
-      {/* ======================================================
-          Employee Sidebar
-      ====================================================== */}
       <Sidebar />
 
 
-      {/* ======================================================
-          Main Content
-      ====================================================== */}
-      <main className="flex-1 min-w-0 bg-slate-100 min-h-screen p-3 sm:p-5 md:p-8">
+      <main
+        className="
+          flex-1
+          min-w-0
+          bg-slate-100
+          min-h-screen
+          p-3
+          sm:p-5
+          md:p-8
+        "
+      >
 
         <div className="w-full max-w-6xl mx-auto">
 
           <Navbar />
 
 
-          {/* ==================================================
-              Leave Requests Container
-          ================================================== */}
-          <div className="bg-white rounded-xl shadow-lg mt-6 sm:mt-8 overflow-hidden">
+          <div
+            className="
+              bg-white
+              rounded-xl
+              shadow-lg
+              mt-6
+              sm:mt-8
+              overflow-hidden
+            "
+          >
 
-
-            {/* =================================================
-                Page Heading
-            ================================================= */}
             <div className="p-5 sm:p-6 border-b">
 
-              <h2 className="text-xl sm:text-2xl font-bold">
+              <h2
+                className="
+                  text-2xl
+                  sm:text-3xl
+                  font-bold
+                "
+              >
                 My Leave Requests
               </h2>
 
             </div>
 
 
-            {/* =================================================
-                MOBILE VIEW
+            {/* ==================================================
+                Desktop Table
+            ================================================== */}
+            <div className="hidden md:block overflow-x-auto">
 
-                Cards are used instead of the wide table.
-            ================================================= */}
-            <div className="block md:hidden p-4 space-y-4">
+              <table className="w-full">
+
+                <thead className="bg-gray-200">
+
+                  <tr>
+
+                    <th className="p-4">
+                      Reason
+                    </th>
+
+                    <th>
+                      Start
+                    </th>
+
+                    <th>
+                      End
+                    </th>
+
+                    <th>
+                      Status
+                    </th>
+
+                    <th>
+                      Remarks
+                    </th>
+
+                    <th>
+                      Document
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {leaves.map((leave) => (
+
+                    <tr
+                      key={leave.id}
+                      className="border-t"
+                    >
+
+                      <td className="p-4">
+                        {leave.reason}
+                      </td>
+
+
+                      <td className="text-center">
+                        {formatIndiaDate(
+                          leave.start_date
+                        )}
+                      </td>
+
+
+                      <td className="text-center">
+                        {formatIndiaDate(
+                          leave.end_date
+                        )}
+                      </td>
+
+
+                      <td className="text-center">
+
+                        <span
+                          className={`
+                            px-3
+                            py-1
+                            rounded-full
+                            ${badgeColor(
+                              leave.status
+                            )}
+                          `}
+                        >
+
+                          {leave.status}
+
+                        </span>
+
+                      </td>
+
+
+                      <td className="text-center">
+
+                        {leave.manager_remarks || "-"}
+
+                      </td>
+
+
+                      <td className="text-center">
+
+                        {leave.document_url ? (
+
+                          <a
+                            href={leave.document_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="
+                              text-blue-600
+                              underline
+                            "
+                          >
+                            View
+                          </a>
+
+                        ) : (
+
+                          "-"
+
+                        )}
+
+                      </td>
+
+                    </tr>
+
+                  ))}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+
+            {/* ==================================================
+                Mobile Cards
+            ================================================== */}
+            <div className="md:hidden p-4 space-y-4">
 
               {leaves.length === 0 ? (
 
-                <div className="text-center text-gray-500 py-8">
+                <p className="text-center text-gray-500 py-8">
+
                   No leave requests found.
-                </div>
+
+                </p>
 
               ) : (
 
@@ -118,34 +305,54 @@ export default function MyLeaves() {
 
                   <div
                     key={leave.id}
-                    className="border border-gray-200 rounded-xl p-4 shadow-sm"
+                    className="
+                      border
+                      rounded-xl
+                      p-4
+                      shadow-sm
+                    "
                   >
 
-                    {/* Leave Reason */}
-                    <div className="mb-4">
+                    <p className="
+                      text-xs
+                      font-semibold
+                      text-gray-500
+                      uppercase
+                    ">
+                      Reason
+                    </p>
 
-                      <p className="text-xs font-semibold text-gray-500 uppercase">
-                        Reason
-                      </p>
-
-                      <p className="mt-1 text-gray-800 break-words">
-                        {leave.reason}
-                      </p>
-
-                    </div>
+                    <p className="
+                      mt-1
+                      text-gray-800
+                      break-words
+                    ">
+                      {leave.reason}
+                    </p>
 
 
-                    {/* Dates */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="
+                      grid
+                      grid-cols-2
+                      gap-4
+                      mt-5
+                    ">
 
                       <div>
 
-                        <p className="text-xs font-semibold text-gray-500 uppercase">
+                        <p className="
+                          text-xs
+                          font-semibold
+                          text-gray-500
+                          uppercase
+                        ">
                           Start Date
                         </p>
 
-                        <p className="mt-1 text-sm text-gray-800 break-words">
-                          {leave.start_date}
+                        <p className="mt-1">
+                          {formatIndiaDate(
+                            leave.start_date
+                          )}
                         </p>
 
                       </div>
@@ -153,12 +360,19 @@ export default function MyLeaves() {
 
                       <div>
 
-                        <p className="text-xs font-semibold text-gray-500 uppercase">
+                        <p className="
+                          text-xs
+                          font-semibold
+                          text-gray-500
+                          uppercase
+                        ">
                           End Date
                         </p>
 
-                        <p className="mt-1 text-sm text-gray-800 break-words">
-                          {leave.end_date}
+                        <p className="mt-1">
+                          {formatIndiaDate(
+                            leave.end_date
+                          )}
                         </p>
 
                       </div>
@@ -166,42 +380,66 @@ export default function MyLeaves() {
                     </div>
 
 
-                    {/* Status */}
-                    <div className="mb-4">
+                    <div className="mt-5">
 
-                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                      <p className="
+                        text-xs
+                        font-semibold
+                        text-gray-500
+                        uppercase
+                      ">
                         Status
                       </p>
 
                       <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${badgeColor(
-                          leave.status
-                        )}`}
+                        className={`
+                          inline-block
+                          mt-2
+                          px-3
+                          py-1
+                          rounded-full
+                          ${badgeColor(
+                            leave.status
+                          )}
+                        `}
                       >
+
                         {leave.status}
+
                       </span>
 
                     </div>
 
 
-                    {/* Manager Remarks */}
-                    <div className="mb-4">
+                    <div className="mt-5">
 
-                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                      <p className="
+                        text-xs
+                        font-semibold
+                        text-gray-500
+                        uppercase
+                      ">
                         Manager Remarks
                       </p>
 
-                      <p className="mt-1 text-gray-700 break-words">
+                      <p className="
+                        mt-1
+                        break-words
+                      ">
                         {leave.manager_remarks || "-"}
                       </p>
 
                     </div>
 
 
-                    {/* Document */}
-                    <div>
+                    <div className="mt-5">
 
-                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                      <p className="
+                        text-xs
+                        font-semibold
+                        text-gray-500
+                        uppercase
+                      ">
                         Document
                       </p>
 
@@ -211,14 +449,19 @@ export default function MyLeaves() {
                           href={leave.document_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-block mt-1 text-blue-600 underline font-medium"
+                          className="
+                            inline-block
+                            mt-1
+                            text-blue-600
+                            underline
+                          "
                         >
                           View Document
                         </a>
 
                       ) : (
 
-                        <p className="mt-1 text-gray-500">
+                        <p className="mt-1">
                           -
                         </p>
 
@@ -234,139 +477,6 @@ export default function MyLeaves() {
 
             </div>
 
-
-            {/* =================================================
-                DESKTOP / TABLET VIEW
-
-                Existing table is retained for larger screens.
-            ================================================= */}
-            <div className="hidden md:block overflow-x-auto">
-
-              <table className="w-full min-w-[850px]">
-
-                <thead className="bg-gray-200">
-
-                  <tr>
-
-                    <th className="p-4 text-left">
-                      Reason
-                    </th>
-
-                    <th className="p-4">
-                      Start
-                    </th>
-
-                    <th className="p-4">
-                      End
-                    </th>
-
-                    <th className="p-4">
-                      Status
-                    </th>
-
-                    <th className="p-4">
-                      Remarks
-                    </th>
-
-                    <th className="p-4">
-                      Document
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  {leaves.length === 0 ? (
-
-                    <tr>
-
-                      <td
-                        colSpan="6"
-                        className="text-center text-gray-500 py-8"
-                      >
-                        No leave requests found.
-                      </td>
-
-                    </tr>
-
-                  ) : (
-
-                    leaves.map((leave) => (
-
-                      <tr
-                        key={leave.id}
-                        className="border-t"
-                      >
-
-                        <td className="p-4">
-                          {leave.reason}
-                        </td>
-
-
-                        <td className="text-center p-4">
-                          {leave.start_date}
-                        </td>
-
-
-                        <td className="text-center p-4">
-                          {leave.end_date}
-                        </td>
-
-
-                        <td className="text-center p-4">
-
-                          <span
-                            className={`px-3 py-1 rounded-full ${badgeColor(
-                              leave.status
-                            )}`}
-                          >
-                            {leave.status}
-                          </span>
-
-                        </td>
-
-
-                        <td className="text-center p-4">
-                          {leave.manager_remarks || "-"}
-                        </td>
-
-
-                        <td className="text-center p-4">
-
-                          {leave.document_url ? (
-
-                            <a
-                              href={leave.document_url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-blue-600 underline"
-                            >
-                              View
-                            </a>
-
-                          ) : (
-
-                            "-"
-
-                          )}
-
-                        </td>
-
-                      </tr>
-
-                    ))
-
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
           </div>
 
         </div>
@@ -376,4 +486,5 @@ export default function MyLeaves() {
     </div>
 
   );
+
 }
